@@ -8,9 +8,14 @@ trait Functions:
   def max(a: List[Int]): Int // gives Int.MinValue if a is empty
 
 object FunctionsImpl extends Functions:
-  override def sum(a: List[Double]): Double = ???
-  override def concat(a: Seq[String]): String = ???
-  override def max(a: List[Int]): Int = ???
+  import Combiners.given
+  //override def sum(a: List[Double]): Double = a.foldLeft(0.00)((acc, a)=>acc+a)
+  //override def concat(a: Seq[String]): String = a.foldLeft("")((acc, a)=>acc+a)
+  //override def max(a: List[Int]): Int = a.foldLeft(Int.MinValue)((acc, a)=>if a >= acc then a else acc)
+  override def sum(a: List[Double]): Double = combine(a)
+  override def concat(a: Seq[String]): String = combine(a.toList)
+  override def max(a: List[Int]): Int = combine(a)
+  def combine[A: Combiner](a: List[A]) = a.foldLeft(summon[Combiner[A]].unit)((acc, a)=>summon[Combiner[A]].combine(acc, a))
 
 /*
  * 2) To apply DRY principle at the best,
@@ -28,6 +33,17 @@ object FunctionsImpl extends Functions:
 trait Combiner[A]:
   def unit: A
   def combine(a: A, b: A): A
+
+object Combiners:
+  given CombinerSumDouble: Combiner[Double] with
+    override def combine(a: Double, b: Double): Double = a+b
+    override def unit: Double = 0.00
+  given CombinerMaxInt: Combiner[Int] with
+    override def combine(a: Int, b: Int): Int = if a >= b then a else b
+    override def unit: Int = Int.MinValue
+  given CombinerConcatString: Combiner[String] with
+    override def combine(a: String, b: String): String = a+b
+    override def unit: String = ""
 
 @main def checkFunctions(): Unit =
   val f: Functions = FunctionsImpl
