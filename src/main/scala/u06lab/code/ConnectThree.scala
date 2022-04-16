@@ -16,9 +16,9 @@ object ConnectThree extends App:
    * y
    *
    * 3
-   * 2
-   * 1
-   * 0
+   * 2 O
+   * 1 X
+   * 0 X O X O
    *   0 1 2 3 <-- x
    */
   type Board = Seq[Disk]
@@ -26,9 +26,17 @@ object ConnectThree extends App:
 
   import Player.*
 
-  def find(board: Board, x: Int, y: Int): Option[Player] = ???
+  def find(board: Board, x: Int, y: Int): Option[Player] =
+    board.collectFirst{ case disk: Disk if disk.x == x && disk.y == y => disk.player }
 
-  def firstAvailableRow(board: Board, x: Int): Option[Int] = ???
+  def lastRowPresent(board: Board, x: Int) =
+    board.collect{case disk: Disk if disk.x == x => disk.y}.lastOption
+
+  def firstAvailableRow(board: Board, x: Int): Option[Int] =
+    val lr = lastRowPresent(board, x)
+    board match
+      case _ if board.isEmpty => Option(x)
+      case _ => lr.map(y => y + 1).filter(y => y <= bound)
 
   def placeAnyDisk(board: Board, player: Player): Seq[Board] = ???
 
@@ -51,6 +59,7 @@ object ConnectThree extends App:
   println(find(List(Disk(0, 0, X), Disk(0, 1, O), Disk(0, 2, X)), 0, 1)) // Some(O)
   println(find(List(Disk(0, 0, X), Disk(0, 1, O), Disk(0, 2, X)), 1, 1)) // None
 
+
   // Exercise 2: implement firstAvailableRow such that..
   println("EX 2: ")
   println(firstAvailableRow(List(), 0)) // Some(0)
@@ -58,23 +67,25 @@ object ConnectThree extends App:
   println(firstAvailableRow(List(Disk(0, 0, X), Disk(0, 1, X)), 0)) // Some(2)
   println(firstAvailableRow(List(Disk(0, 0, X), Disk(0, 1, X), Disk(0, 2, X)), 0)) // Some(3)
   println(firstAvailableRow(List(Disk(0, 0, X), Disk(0, 1, X), Disk(0, 2, X), Disk(0, 3, X)), 0)) // None
-  // Exercise 2: implement placeAnyDisk such that..
-  printBoards(placeAnyDisk(List(), X))
-  // .... .... .... ....
-  // .... .... .... ....
-  // .... .... .... ....
-  // ...X ..X. .X.. X...
-  printBoards(placeAnyDisk(List(Disk(0, 0, O)), X))
-  // .... .... .... ....
-  // .... .... .... ....
-  // ...X .... .... ....
-  // ...O ..XO .X.O X..O
-  println("EX 3: ")
+/*
+// Exercise 2: implement placeAnyDisk such that..
+printBoards(placeAnyDisk(List(), X))
+// .... .... .... ....
+// .... .... .... ....
+// .... .... .... ....
+// ...X ..X. .X.. X...
+printBoards(placeAnyDisk(List(Disk(0, 0, O)), X))
+// .... .... .... ....
+// .... .... .... ....
+// ...X .... .... ....
+// ...O ..XO .X.O X..O
+
+println("EX 3: ")
 // Exercise 3 (ADVANCED!): implement computeAnyGame such that..
-  computeAnyGame(O, 4).foreach { g =>
-    printBoards(g)
-    println()
-  }
+computeAnyGame(O, 4).foreach { g =>
+printBoards(g)
+println()
+}
 //  .... .... .... .... ...O
 //  .... .... .... ...X ...X
 //  .... .... ...O ...O ...O
@@ -87,3 +98,5 @@ object ConnectThree extends App:
 // .... X... X... X... X...
 
 // Exercise 4 (VERY ADVANCED!) -- modify the above one so as to stop each game when someone won!!
+
+*/
